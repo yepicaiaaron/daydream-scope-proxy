@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, abort, Response
+from flask_cors import CORS
 import requests
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 # The target URL for your Daydream Scope App on GCP
 # This should be the internal or private IP/port if Render can reach it directly,
