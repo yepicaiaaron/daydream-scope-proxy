@@ -26,12 +26,12 @@ def webrtc_offer():
             headers=headers,
             timeout=15  # Added timeout to prevent hanging and diagnose network issues
         )
-        response.raise_for_status() 
+        # Remove raise_for_status so we pass the real error (like 400 Bad Request) back to the client
         
         return Response(
             response.content, 
             response.status_code, 
-            mimetype=response.headers.get('Content-Type', 'application/sdp')
+            mimetype=response.headers.get('Content-Type', 'application/json') if response.status_code >= 400 else response.headers.get('Content-Type', 'application/sdp')
         )
     except requests.exceptions.Timeout:
         app.logger.error(f"Timeout connecting to GCP at {TARGET_SCOPE_URL}")
