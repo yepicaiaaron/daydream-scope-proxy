@@ -19,10 +19,12 @@ def webrtc_offer():
             'Accept': request.headers.get('Accept', 'application/sdp')
         }
         
+        app.logger.info(f"Forwarding WebRTC offer to {TARGET_SCOPE_URL}/api/v1/webrtc/offer")
         response = requests.post(
             f"{TARGET_SCOPE_URL}/api/v1/webrtc/offer", 
             data=request.get_data(), 
-            headers=headers
+            headers=headers,
+            timeout=15  # Added timeout to prevent hanging and diagnose network issues
         )
         response.raise_for_status() 
         
@@ -31,6 +33,9 @@ def webrtc_offer():
             response.status_code, 
             mimetype=response.headers.get('Content-Type', 'application/sdp')
         )
+    except requests.exceptions.Timeout:
+        app.logger.error(f"Timeout connecting to GCP at {TARGET_SCOPE_URL}")
+        abort(504, description="Gateway Timeout connecting to Scope API")
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error forwarding WebRTC offer: {e}")
         abort(500, description=str(e))
