@@ -13,16 +13,24 @@ TARGET_SCOPE_URL = os.environ.get("TARGET_SCOPE_URL", "http://34.44.193.2:8000")
 
 @app.route("/api/v1/webrtc/offer", methods=["POST"])
 def webrtc_offer():
-    if not request.is_json:
-        abort(400, description="Request must be JSON")
-    
     try:
-        # Forward the request to the Daydream Scope App
-        response = requests.post(f"{TARGET_SCOPE_URL}/api/v1/webrtc/offer", json=request.get_json())
-        response.raise_for_status() # Raise an exception for HTTP errors
+        headers = {
+            'Content-Type': request.content_type or 'application/sdp',
+            'Accept': request.headers.get('Accept', 'application/sdp')
+        }
         
-        # Return the response from the Daydream Scope App
-        return jsonify(response.json()), response.status_code
+        response = requests.post(
+            f"{TARGET_SCOPE_URL}/api/v1/webrtc/offer", 
+            data=request.get_data(), 
+            headers=headers
+        )
+        response.raise_for_status() 
+        
+        return Response(
+            response.content, 
+            response.status_code, 
+            mimetype=response.headers.get('Content-Type', 'application/sdp')
+        )
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error forwarding WebRTC offer: {e}")
         abort(500, description=str(e))
