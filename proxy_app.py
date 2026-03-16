@@ -12,7 +12,7 @@ CORS(app)
 # The target URL for your Daydream Scope App on GCP
 # This should be the internal or private IP/port if Render can reach it directly,
 # or the public IP if the GCP firewall allows it only from Render's IPs.
-TARGET_SCOPE_URL = os.environ.get("TARGET_SCOPE_URL", "http://34.44.193.2:8000")
+TARGET_SCOPE_URL = os.environ.get("TARGET_SCOPE_URL", "http://34.162.239.218:8000")
 
 @app.route("/api/v1/webrtc/offer", methods=["POST"])
 def webrtc_offer():
